@@ -22,6 +22,7 @@ def ingest_repo(repo_path:str):
         files = read_repo_files(repo_path)
         print(f"Files found: {len(files)}")
         file_count =0
+        chunk_count =0
         for file in files:
             repo_file = RepoFile(
                 repo_id=repo.id,
@@ -33,10 +34,8 @@ def ingest_repo(repo_path:str):
             db.commit()
             db.refresh(repo_file)
             file_count+=1
-            chunk_count =0
             chunks = chunk_file(file["content"])
-            for file in files:
-                for chunk in chunks:
+            for chunk in chunks:
                     file_chunk = FileChunk(
                         repo_id = repo.id,
                         file_id = repo_file.id,
