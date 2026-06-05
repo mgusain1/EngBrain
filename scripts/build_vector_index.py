@@ -13,7 +13,7 @@ def build_vector_index():
         chunks = db.query(FileChunk).all()
         count =0
         for chunk in chunks:
-            embedding = get_embedding(chunk)
+            embedding = get_embedding(chunk.chunk_text)
             collection.add(
                 ids=[str(chunk.id)],
                 documents=[chunk.chunk_text],
