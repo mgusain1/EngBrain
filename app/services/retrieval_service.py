@@ -20,6 +20,7 @@ def search_relevant_chunks(question: str, top_k: int = 5):
             "file_path": meta["file_path"],
             "start_line": meta["start_line"],
             "end_line": meta["end_line"],
+            "text":doc,
             "preview": doc[:600],
             "distance": distance
         })
