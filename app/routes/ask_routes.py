@@ -8,10 +8,11 @@ router = APIRouter()
 class AskRequest(BaseModel):
     question: str
     top_k: int =5
+    repo_id: int
     
 @router.post("/ask")
 def ask_question(request: AskRequest):
-    sources = search_relevant_chunks(question=request.question, top_k=request.top_k)
+    sources = search_relevant_chunks(repo_id= request.repo_id, question=request.question, top_k=request.top_k)
     best_source = sources[0] if sources else None
     answer = generate_answer(
         question=request.question,

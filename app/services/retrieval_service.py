@@ -1,7 +1,7 @@
 import chromadb
 from app.services.embedding_service import get_embedding
 
-def search_relevant_chunks(question: str, top_k: int = 5):
+def search_relevant_chunks(repo_id: int, question: str, top_k: int = 5):
     client = chromadb.PersistentClient(path="storage/chroma")
     collection = client.get_or_create_collection(
         name = "engbrain_chunks"
@@ -9,7 +9,8 @@ def search_relevant_chunks(question: str, top_k: int = 5):
     question_embedding = get_embedding(question)
     results = collection.query(
         query_embeddings=[question_embedding],
-        n_results=top_k
+        n_results=top_k,
+        where={"repo_id":repo_id}
     )
     documents = results['documents'][0]
     metadatas = results['metadatas'][0]
