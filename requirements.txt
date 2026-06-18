@@ -3,4 +3,8 @@ uvicorn
 sqlalchemy
 pydantic
 python-dotenv
+chromadb
+sentence-transformers
 openai
+streamlit
+requests
