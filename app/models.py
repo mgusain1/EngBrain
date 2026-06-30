@@ -34,3 +34,15 @@ class FileChunk(Base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     file = relationship("RepoFile", back_populates="chunks")
     
+class QueryLog(Base):
+    __tablename__ = "query_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, nullable=False)
+    repo_id = Column(Integer, nullable=True)
+    query_type = Column(String, nullable=False)  # ask or runbook
+    question = Column(Text, nullable=False)
+    answer = Column(Text, nullable=True)
+    sources_returned = Column(Text, nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    

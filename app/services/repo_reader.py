@@ -1,6 +1,6 @@
 from pathlib import Path
 
-ALLOWED = {".py",".js",".ts",".java",".md",".txt",".yml",".yaml",".json",".toml"}
+ALLOWED = {".py",".js",".ts",".java",".md",".txt",".yml",".yaml",".json",".toml",".rst"}
 IGNORED = {".git","venv",".venv","__pycache__","node_modules","dist","build",".idea",".vscode",".pytest_cache"}
 
 

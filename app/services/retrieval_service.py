@@ -9,7 +9,7 @@ def search_relevant_chunks(repo_id: int, question: str, top_k: int = 5):
     question_embedding = get_embedding(question)
     results = collection.query(
         query_embeddings=[question_embedding],
-        n_results=top_k,
+        n_results=top_k*2,
         where={"repo_id":repo_id}
     )
     documents = results['documents'][0]
@@ -25,5 +25,20 @@ def search_relevant_chunks(repo_id: int, question: str, top_k: int = 5):
             "preview": doc[:600],
             "distance": distance
         })
-    return sources
+    filtered_sources = []
+    file_counts = {}
+
+    for source in sources:
+        file_path = source["file_path"]
+
+        if file_path not in file_counts:
+            file_counts[file_path] = 0
+
+        if file_counts[file_path] >= 2:
+            continue
+
+        filtered_sources.append(source)
+        file_counts[file_path] += 1
+
+    return filtered_sources[:top_k]
         
