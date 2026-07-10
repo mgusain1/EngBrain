@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.services.ingestion_service import ingest_repo
 from app.services.vector_index_service import build_vector_index
@@ -12,12 +12,19 @@ class IngestRepoRequest(BaseModel):
     
 @router.post("/ingest")
 def ingest_repo_route(request:IngestRepoRequest):
-    ingest_result = ingest_repo(request.repo_path)
-    index_result = build_vector_index(ingest_result["repo_id"])
-    return {
-    **ingest_result,
-    **index_result
-}
+    try:
+        ingest_result = ingest_repo(request.repo_path)
+        index_result = build_vector_index(ingest_result["repo_id"])
+        return {
+            **ingest_result,
+            **index_result
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=502, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
 @router.get("")
 def list_repos():
