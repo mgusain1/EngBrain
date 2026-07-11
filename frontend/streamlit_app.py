@@ -11,6 +11,10 @@ st.set_page_config(
 
 st.title("EngBrain")
 st.write("AI engineering memory and runbook generator for codebases.")
+st.info(
+    "Beta note: use public GitHub repositories only. "
+    "Repo URLs, questions, answers, and source file references may be logged for product feedback."
+)
 if "session_id" not in st.session_state:
     st.session_state.session_id = str(uuid.uuid4())
 
@@ -27,7 +31,7 @@ if st.button("Ingest Repo"):
     try:
         response = requests.post(
             f"{API_BASE}/repos/ingest",
-            json = {"repo_path":repo_path}
+            json = {"repo_path":repo_path, "session_id": st.session_state.session_id}
         )
         if response.status_code == 200:
             st.success("Repo Successfully Ingested")

@@ -46,3 +46,15 @@ class QueryLog(Base):
     sources_returned = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
+class EventLog(Base):
+    __tablename__ = "event_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    session_id = Column(String, nullable=True)
+    event_type = Column(String, nullable=False)
+    repo_input = Column(Text, nullable=True)
+    repo_id = Column(Integer, nullable=True)
+    status = Column(String, nullable=True)
+    message = Column(Text, nullable=True)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    
