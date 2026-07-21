@@ -1,7 +1,7 @@
 import base64
 from pathlib import Path
 from urllib.parse import urlparse
-
+import os
 import requests
 
 
@@ -17,6 +17,17 @@ IGNORED_PARTS = {
     ".idea", ".vscode", ".pytest_cache"
 }
 
+def github_headers():
+    token = os.getenv("GITHUB_TOKEN")
+
+    headers = {
+        "Accept": "application/vnd.github+json"
+    }
+
+    if token:
+        headers["Authorization"] = "Bearer " + token
+
+    return headers
 
 def is_github_url(repo_input: str) -> bool:
     return (
@@ -62,7 +73,11 @@ def should_skip_file(file_path: str) -> bool:
 def get_default_branch(owner: str, repo: str) -> str:
     url = "https://api.github.com/repos/" + owner + "/" + repo
 
-    response = requests.get(url, timeout=20)
+    response = requests.get(
+            url,
+            headers=github_headers(),
+            timeout=20
+        )
 
     if response.status_code == 404:
         raise RuntimeError("Repo not found or private. Connect GitHub to continue.")
@@ -85,7 +100,11 @@ def get_repo_tree(owner: str, repo: str, branch: str):
         + "?recursive=1"
     )
 
-    response = requests.get(url, timeout=30)
+    response = requests.get(
+            url,
+            headers=github_headers(),
+            timeout=20
+        )
 
     if response.status_code == 404:
         raise RuntimeError("Repo tree not found or repo is private.")
@@ -109,7 +128,11 @@ def fetch_file_content(owner: str, repo: str, file_path: str, branch: str) -> st
         + branch
     )
 
-    response = requests.get(url, timeout=30)
+    response = requests.get(
+        url,
+        headers=github_headers(),
+        timeout=20
+    )
 
     if response.status_code != 200:
         return ""
@@ -156,3 +179,4 @@ def read_github_repo(repo_url: str):
         })
 
     return files
+
