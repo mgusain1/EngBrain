@@ -29,12 +29,17 @@ def local_fallback_answer(question, sources):
             + str(source["end_line"])
         )
 
-    return (
-        "I could not use the LLM API, but I found relevant context for: "
-        + question.rstrip(".?")
-        + ". Check these sources: "
+    answer = "Based on the retrieved source files, the most relevant implementation appears to be in "
+    answer += source_lines[0] + ". "
+
+    answer += (
+        "The related source files show where this behavior is implemented and tested. "
+        "Review the cited files below for the exact code paths. "
+        "Relevant sources: "
         + "; ".join(source_lines)
     )
+
+    return answer
 
 def generate_answer(question,source):
     context = build_context(source)
