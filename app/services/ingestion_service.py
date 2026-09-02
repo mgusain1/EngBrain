@@ -1,6 +1,7 @@
 from pathlib import Path
 from app.database import Base, engine, SessionLocal
-from app.models import Repo, RepoFile, FileChunk
+from app.models import Repo, RepoFile, FileChunk, CodeSymbol
+from app.services.ast_service import extract_python_symbols
 from app.services.repo_reader import read_repo_files
 from app.services.github_service import is_github_url, read_github_repo
 from app.services.chunker import chunk_file
@@ -51,6 +52,7 @@ def ingest_repo(repo_path: str):
 
         file_count = 0
         chunk_count = 0
+        symbols_created = 0
 
         for file in files:
             chunks = chunk_file(file["content"])
@@ -70,6 +72,26 @@ def ingest_repo(repo_path: str):
             db.flush()
 
             file_count += 1
+            if file["file_type"] == ".py":
+                symbols = extract_python_symbols(
+                    file_path=file["file_path"],
+                    content=file["content"]
+                )
+
+                for symbol in symbols:
+                    code_symbol = CodeSymbol(
+                        repo_id=repo.id,
+                        file_id=repo_file.id,
+                        file_path=symbol["file_path"],
+                        symbol_type=symbol["symbol_type"],
+                        symbol_name=symbol["symbol_name"],
+                        parent_name=symbol["parent_name"],
+                        start_line=symbol["start_line"],
+                        end_line=symbol["end_line"],
+                        docstring=symbol["docstring"]
+                    )
+                    db.add(code_symbol)
+                    symbols_created+=1
 
             for chunk in chunks:
                 file_chunk = FileChunk(
@@ -88,7 +110,7 @@ def ingest_repo(repo_path: str):
             raise ValueError(
                 "Repository files were found, but no searchable chunks were created."
             )
-
+        symbol_count = db.query(CodeSymbol).filter(CodeSymbol.repo_id == repo.id).count()
         db.commit()
         db.refresh(repo)
 
@@ -97,7 +119,8 @@ def ingest_repo(repo_path: str):
             "repo_name": repo.name,
             "repo_path": repo.path,
             "files_indexed": file_count,
-            "chunks_created": chunk_count
+            "chunks_created": chunk_count,
+            "symbols_created": symbols_created
         }
 
     except Exception:

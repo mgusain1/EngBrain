@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from app.services.ingestion_service import ingest_repo
 from app.services.vector_index_service import build_vector_index
-from app.database import SessionLocal
+from app.database import Base, engine, SessionLocal
 from app.models import Repo
 from app.services.event_log_service import log_event
 
@@ -67,6 +67,7 @@ def ingest_repo_route(request:IngestRepoRequest):
     
 @router.get("")
 def list_repos():
+    Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         repos = db.query(Repo).order_by(Repo.id.desc()).all()

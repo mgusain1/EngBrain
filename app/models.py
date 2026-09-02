@@ -58,3 +58,24 @@ class EventLog(Base):
     message = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     
+    
+class CodeSymbol(Base):
+    __tablename__ = "code_symbols"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    repo_id = Column(Integer, ForeignKey("repos.id"), nullable=False)
+    file_id = Column(Integer, ForeignKey("repo_files.id"), nullable=False)
+
+    file_path = Column(String, nullable=False)
+
+    symbol_type = Column(String, nullable=False)
+    symbol_name = Column(String, nullable=False)
+    parent_name = Column(String, nullable=True)
+
+    start_line = Column(Integer, nullable=True)
+    end_line = Column(Integer, nullable=True)
+
+    docstring = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
